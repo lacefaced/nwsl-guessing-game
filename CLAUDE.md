@@ -48,10 +48,15 @@ Three layers, connected only by a generated file:
 3. **`*.html` pages** — one self-contained file per game/tool. Each is plain
    HTML/CSS/JS with no dependencies, loads `<script src="players.js?v=1">`,
    and reads the global `allPlayers`. `index.html` is the hub; `rosters.html`
-   is the team-compare tool; `naming-challenge.html` and `crest-match.html`
-   are the games. `crest-match.html` carries its own `teamCrests` map (team
-   name → home city + ESPN team id) because crest images key off the numeric
-   id at `a.espncdn.com/i/teamlogos/soccer/500/{id}.png`, not off `players.js`.
+   is the team-compare tool; `naming-challenge.html`, `crest-match.html`, and
+   `stat-leaders.html` are the games. `crest-match.html` carries its own
+   `teamCrests` map (team name → home city + ESPN team id) because crest images
+   key off the numeric id at `a.espncdn.com/i/teamlogos/soccer/500/{id}.png`,
+   not off `players.js`. `stat-leaders.html` quizzes the per-club leader in a
+   rotating stat (goals, assists, goalContributions, saves, yellowCards);
+   `appearances` is deliberately not a category because too many players tie at
+   the season-game maximum. Ties for a lead are accepted — any option whose
+   value equals the top value counts as correct.
 
 ### Daily refresh
 

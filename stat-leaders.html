@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NWSL Stat Leaders</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap');
+    :root { --ink: #17222c; --muted: #71808b; --paper: #f5f1e9; --white: #fffdf8; --coral: #f05a47; --coral-dark: #c63e35; --mint: #b8e6d1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: Manrope, sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .3; background-image: radial-gradient(#c9c2b6 1px, transparent 1px); background-size: 18px 18px; }
+    main { position: relative; width: min(980px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 60px; }
+    .game-nav { display: grid; gap: 2px; width: fit-content; margin-bottom: 36px; padding: 10px 14px; border-left: 3px solid var(--coral); background: rgba(255,253,248,.72); font: 12px/1.7 'DM Mono', monospace; }
+    .game-nav-label { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .game-nav a { color: var(--muted); text-decoration: none; }
+    .game-nav a:hover, .game-nav a.active { color: var(--coral-dark); }
+    .hub-link { display: inline-block; margin: 0 0 18px; color: var(--coral-dark); font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; text-decoration: none; }
+    .hub-link:hover { text-decoration: underline; }
+    header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 36px; }
+    .kicker { margin: 0 0 8px; color: var(--coral-dark); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 600px; margin: 0; font: 42px/1.02 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .intro { max-width: 420px; margin: 14px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .scoreboard { display: flex; align-items: center; gap: 24px; padding: 14px 18px; border: 1px solid var(--ink); background: var(--white); box-shadow: 5px 5px 0 var(--ink); }
+    .score-number { font: 28px 'Archivo Black', sans-serif; }
+    .score-label { display: block; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .game-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .game-bar h2 { margin: 0; font: 21px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .round-label { color: var(--muted); font: 12px 'DM Mono', monospace; }
+    .board { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(280px, 1.2fr); gap: 26px; align-items: start; }
+    .column-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 10px; font: 11px 'DM Mono', monospace; letter-spacing: .09em; text-transform: uppercase; }
+    .column-title span { color: var(--muted); font-size: 10px; }
+    .cards { display: grid; gap: 10px; }
+    .prompt-stage { display: grid; place-items: center; gap: 12px; min-height: 200px; padding: 28px 24px; border: 1px solid var(--ink); background: var(--white); box-shadow: 0 10px 0 rgba(23,34,44,.08); text-align: center; }
+    .prompt-stage .team { margin: 0; font: 26px/1.12 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .prompt-stage .ask { margin: 0; color: var(--coral-dark); font: 500 13px 'DM Mono', monospace; letter-spacing: .06em; text-transform: uppercase; }
+    .prompt-tools { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 16px; }
+    .reveal-caption { min-height: 18px; margin: 0; color: #2d7d58; font: 12px 'DM Mono', monospace; text-align: center; }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    .match-card { display: flex; align-items: center; width: 100%; min-height: 62px; padding: 8px 14px; border: 1px solid var(--ink); color: var(--ink); background: var(--white); box-shadow: 0 8px 0 rgba(23,34,44,.08); text-align: left; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .match-card:hover:not(:disabled) { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 rgba(23,34,44,.14); }
+    .match-card:disabled { cursor: default; }
+    .answer-card.correct { background: var(--mint); border-color: #5c9c7e; }
+    .match-card.wrong { background: #ffd8d1; border-color: var(--coral); animation: shake .3s ease; }
+    .logo { display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px; margin-right: 14px; background: #eef1ea; object-fit: cover; object-position: top center; border-radius: 50%; }
+    .logo-fallback { background: #68c5b4; color: var(--ink); font: 800 13px 'DM Mono', monospace; }
+    .card-copy { font-weight: 800; font-size: 15px; line-height: 1.25; }
+    .card-copy small { display: block; margin-top: 4px; color: #2d7d58; font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .status { min-height: 28px; margin: 26px 0 0; color: var(--muted); font: 12px 'DM Mono', monospace; text-align: center; }
+    .status.success { color: #2d7d58; } .status.error { color: var(--coral-dark); }
+    .next-round { display: block; margin: 8px auto 0; padding: 13px 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--white); cursor: pointer; font: 800 13px Manrope, sans-serif; text-transform: uppercase; }
+    .next-round:hover { background: var(--coral); border-color: var(--coral); }
+    .next-round[hidden] { display: none; }
+    .result-panel { max-width: 390px; margin: 20px auto 0; padding: 18px; border: 1px solid var(--ink); background: var(--white); text-align: center; }
+    .result-heading { margin: 0 0 5px; font: 16px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .result-summary { margin: 0 0 14px; color: var(--muted); font: 12px 'DM Mono', monospace; }
+    .result-button { padding: 10px 16px; border: 1px solid var(--coral); background: var(--coral); color: white; cursor: pointer; font: 800 12px Manrope, sans-serif; text-transform: uppercase; }
+    .result-button:hover { background: var(--coral-dark); border-color: var(--coral-dark); }
+    .share-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .copy-button { border-color: var(--ink); background: var(--ink); }
+    @keyframes shake { 25% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+    @media (max-width: 700px) { main { padding-top: 20px; } header { display: block; margin-bottom: 30px; } h1 { font-size: 34px; } .intro { max-width: none; margin-bottom: 20px; } .scoreboard { width: fit-content; } .board { grid-template-columns: 1fr; gap: 20px; } .prompt-stage { min-height: 150px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="hub-link" href="index.html">← Back to hub</a>
+    <nav class="game-nav" aria-label="NWSL games">
+      <span class="game-nav-label">NWSL games</span>
+      <a href="naming-challenge.html">01 / Naming Challenge</a>
+      <a href="crest-match.html">02 / Crest Match</a>
+      <a class="active" href="stat-leaders.html" aria-current="page">03 / Stat Leaders</a>
+      <a href="rosters.html">Roster Viewer</a>
+    </nav>
+    <header>
+      <div><p class="kicker">NWSL / stat leaders</p><h1>Who leads the team?</h1><p class="intro">Each round names one club and one stat. Pick the player who leads that club in it — goals, assists, goal contributions, saves, or bookings.</p></div>
+      <div class="scoreboard" aria-label="Game score"><div><span id="score" class="score-number">0</span><span class="score-label">correct</span></div><div><span id="misses" class="score-number">0</span><span class="score-label">misses</span></div></div>
+    </header>
+    <section aria-labelledby="gameTitle">
+      <div class="game-bar"><h2 id="gameTitle">Stat leaders</h2><span id="roundLabel" class="round-label"></span></div>
+      <div class="board">
+        <div>
+          <h3 class="column-title">The question</h3>
+          <div id="promptStage" class="prompt-stage"><p id="promptTeam" class="team"></p><p id="promptAsk" class="ask"></p></div>
+          <div class="prompt-tools"><p id="revealCaption" class="reveal-caption"></p><button id="nextButton" class="next-round" type="button" hidden>Next &rarr;</button></div>
+        </div>
+        <div>
+          <h3 class="column-title">Pick the leader <span>one click</span></h3>
+          <div id="answerCards" class="cards"></div>
+        </div>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Choose the player who leads.</p>
+      <div id="resultPanel" class="result-panel" hidden><h3 class="result-heading">Your score</h3><p id="resultSummary" class="result-summary"></p><div class="share-actions"><button id="shareButton" class="result-button" type="button">Share with link</button><button id="copyButton" class="result-button copy-button" type="button">Copy score</button></div></div>
+    </section>
+  </main>
+  <script src="players.js?v=1"></script>
+  <script>
+    const STATS = {
+      goals: { noun: 'goals', unit: 'G' },
+      assists: { noun: 'assists', unit: 'A' },
+      goalContributions: { noun: 'goal contributions', unit: 'G+A' },
+      saves: { noun: 'saves', unit: 'saves' },
+      yellowCards: { noun: 'yellow cards', unit: 'YC' }
+    };
+    const CATS = Object.keys(STATS);
+    const val = (player, cat) => Number(player[cat]) || 0;
+
+    const promptTeam = document.getElementById('promptTeam'); const promptAsk = document.getElementById('promptAsk'); const answerCards = document.getElementById('answerCards'); const status = document.getElementById('status'); const roundLabel = document.getElementById('roundLabel');
+    const scoreDisplay = document.getElementById('score'); const missesDisplay = document.getElementById('misses'); const resultPanel = document.getElementById('resultPanel'); const resultSummary = document.getElementById('resultSummary'); const shareButton = document.getElementById('shareButton'); const copyButton = document.getElementById('copyButton');
+    const nextButton = document.getElementById('nextButton'); const revealCaption = document.getElementById('revealCaption');
+
+    function shuffle(items) { return [...items].sort(() => Math.random() - .5); }
+    const teams = [...new Set(allPlayers.map(player => player.team))].filter(Boolean).sort();
+    const byTeam = team => allPlayers.filter(player => player.team === team);
+    // Two distinct random categories per club, then shuffled into one deck.
+    const rounds = shuffle(teams.flatMap(team => shuffle(CATS).slice(0, 2).map(cat => ({ team, cat }))));
+
+    let score = 0; let misses = 0; let roundIndex = 0; let currentCat = null; let leaderValue = 0; let options = []; let answered = false;
+
+    function makeAnswer(player) {
+      const card = document.createElement('button'); card.className = 'match-card answer-card'; card.type = 'button';
+      const image = document.createElement('img'); image.className = 'logo'; image.src = player.headshot || ''; image.alt = '';
+      image.onerror = () => { const fallback = document.createElement('span'); fallback.className = 'logo logo-fallback'; fallback.textContent = player.name.split(' ').map(word => word[0]).join('').slice(0, 2); image.replaceWith(fallback); };
+      const copy = document.createElement('span'); copy.className = 'card-copy'; copy.textContent = player.name;
+      const value = document.createElement('small'); value.className = 'card-value'; copy.appendChild(value);
+      card.append(image, copy);
+      card.addEventListener('click', () => answer(card, player));
+      return card;
+    }
+
+    function answer(card, player) {
+      if (answered) return;
+      answered = true;
+      const correct = val(player, currentCat) === leaderValue;
+      if (correct) { score += 1; scoreDisplay.textContent = score; } else { misses += 1; missesDisplay.textContent = misses; }
+      options.forEach((opt, index) => {
+        const el = answerCards.children[index];
+        el.disabled = true;
+        el.querySelector('.card-value').textContent = `${val(opt, currentCat)} ${STATS[currentCat].unit}`;
+        if (val(opt, currentCat) === leaderValue) el.classList.add('correct');
+        else if (opt === player) el.classList.add('wrong');
+      });
+      const leaders = options.filter(opt => val(opt, currentCat) === leaderValue).map(opt => opt.name);
+      revealCaption.textContent = `${leaders.join(' & ')} — ${leaderValue} ${STATS[currentCat].unit}`;
+      status.textContent = correct ? 'Correct.' : 'Not quite — the leader is highlighted.';
+      status.className = correct ? 'status success' : 'status error';
+      nextButton.hidden = false;
+      nextButton.textContent = roundIndex === rounds.length ? 'See results →' : 'Next →';
+      nextButton.focus();
+      updateResultPanel();
+    }
+
+    function nextRound() {
+      if (roundIndex === rounds.length) return finishGame();
+      const round = rounds[roundIndex];
+      roundIndex += 1;
+      currentCat = round.cat;
+      const ranked = byTeam(round.team).sort((a, b) => val(b, round.cat) - val(a, round.cat) || a.name.localeCompare(b.name));
+      leaderValue = val(ranked[0], round.cat);
+      options = shuffle(ranked.slice(0, 5));
+      answered = false;
+      promptTeam.textContent = round.team;
+      promptAsk.textContent = `Most ${STATS[round.cat].noun}?`;
+      answerCards.replaceChildren(...options.map(makeAnswer));
+      roundLabel.textContent = `Question ${roundIndex} of ${rounds.length}`;
+      revealCaption.textContent = '';
+      nextButton.hidden = true;
+      status.textContent = 'Choose the player who leads.';
+      status.className = 'status';
+    }
+
+    function updateResultPanel() { resultSummary.textContent = `${score} right  |  ${misses} wrong  |  ${roundIndex}/${rounds.length} answered`; resultPanel.hidden = false; }
+    function scoreText(includeLink) { return `NWSL Stat Leaders\n${score} right  |  ${misses} wrong\n${roundIndex}/${rounds.length} answered${includeLink ? `\n${location.href}` : ''}`; }
+    async function shareScore() { try { await navigator.clipboard.writeText(scoreText(true)); shareButton.textContent = 'Link copied'; setTimeout(() => { shareButton.textContent = 'Share with link'; }, 1500); } catch { shareButton.textContent = 'Copy unavailable'; setTimeout(() => { shareButton.textContent = 'Share with link'; }, 1500); } }
+    async function copyScore() { try { await navigator.clipboard.writeText(scoreText(false)); copyButton.textContent = 'Score copied'; } catch { copyButton.textContent = 'Copy unavailable'; } }
+    function finishGame() { updateResultPanel(); resultPanel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+    nextButton.addEventListener('click', nextRound);
+    shareButton.addEventListener('click', shareScore); copyButton.addEventListener('click', copyScore);
+    nextRound();
+  </script>
+</body>
+</html>
