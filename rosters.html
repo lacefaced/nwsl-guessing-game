@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NWSL Roster Viewer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap');
+    :root { --ink: #17222c; --muted: #71808b; --paper: #f5f1e9; --white: #fffdf8; --coral: #f05a47; --coral-dark: #c63e35; --mint: #b8e6d1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: Manrope, sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .3; background-image: radial-gradient(#c9c2b6 1px, transparent 1px); background-size: 18px 18px; }
+    main { position: relative; width: min(1120px, calc(100% - 28px)); margin: 0 auto; padding: 34px 0 60px; }
+    .kicker { margin: 0 0 8px; color: var(--coral-dark); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font: 42px/1.02 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .intro { max-width: 570px; margin: 14px 0 28px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 30px; }
+    .selector { display: grid; gap: 7px; }
+    .selector label { color: var(--muted); font: 11px 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+    select { width: 100%; min-height: 48px; padding: 13px 14px; border: 1px solid var(--ink); border-radius: 0; color: var(--ink); background: var(--white); font: 800 15px/1 Manrope, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 5px 5px 0 rgba(23,34,44,.1); }
+    select:focus { outline: 3px solid rgba(240,90,71,.25); border-color: var(--coral); }
+    .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .team-panel { min-width: 0; }
+    .team-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0 0 12px; }
+    .team-heading h2 { min-height: 2.1em; margin: 0; font: 23px/1.05 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .roster-count { color: var(--muted); font: 11px 'DM Mono', monospace; }
+    .roster { display: grid; gap: 6px; }
+    .player-card { display: grid; grid-template-columns: 50px 58px 1fr; align-items: center; min-height: 68px; padding: 4px 10px 4px 5px; border: 1px solid var(--ink); background: var(--white); box-shadow: 0 6px 0 rgba(23,34,44,.08); }
+    .player-card img, .image-placeholder { width: 48px; height: 64px; object-fit: cover; object-position: top center; background: var(--mint); }
+    .number { color: var(--coral-dark); font: 24px 'Archivo Black', sans-serif; text-align: center; }
+    .name { min-width: 0; padding: 0 8px; font-weight: 800; font-size: 14px; line-height: 1.2; }
+    .player-meta { display: flex; gap: 8px; align-items: baseline; margin-top: 4px; }
+    .position { color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .stat { color: #2d7d58; font: 11px 'DM Mono', monospace; white-space: nowrap; }
+    .availability { display: block; margin-top: 3px; color: #2d7d58; font: 9px 'DM Mono', monospace; text-transform: uppercase; }
+    .availability.unavailable { color: var(--coral-dark); font-weight: 800; }
+    .empty { padding: 20px; border: 1px dashed #b9b1a5; color: var(--muted); font: 12px 'DM Mono', monospace; text-align: center; }
+    .quick-pick { margin-bottom: 20px; }
+    .quick-pick h3 { margin: 0 0 8px; font: 11px 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+    .game-btn { padding: 10px; border: 1px solid var(--ink); background: var(--white); color: var(--ink); font: 600 11px Manrope, sans-serif; cursor: pointer; box-shadow: 2px 2px 0 rgba(23,34,44,.08); text-align: center; }
+    .game-btn:hover { border-color: var(--coral); transform: translateY(-1px); }
+    .game-time { display: block; color: var(--muted); font: 9px 'DM Mono', monospace; margin-bottom: 4px; text-transform: uppercase; }
+    #quickPickSection.empty-state { text-align: center; color: var(--muted); font: 11px 'DM Mono', monospace; padding: 10px; }
+    .hub-link { display: inline-block; margin: 0 0 16px; color: var(--coral-dark); font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; text-decoration: none; }
+    .hub-link:hover { text-decoration: underline; }
+    .player-card { width: 100%; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .player-card:hover { border-color: var(--coral); transform: translateY(-1px); }
+    .player-card.unavailable { background: #ffd8d1; border-color: var(--coral); }
+    .player-modal-backdrop { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 14px; background: rgba(23,34,44,.72); }
+    .player-modal { position: relative; width: min(580px, 100%); max-height: calc(100vh - 28px); overflow-y: auto; padding: 24px; border: 1px solid var(--ink); background: var(--white); box-shadow: 10px 10px 0 rgba(23,34,44,.22); }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; font: 800 18px/1 Manrope, sans-serif; }
+    .modal-close:hover { background: var(--coral); color: white; }
+    .modal-profile { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center; padding-right: 38px; }
+    .modal-profile img, .modal-image-placeholder { width: 150px; height: 190px; object-fit: cover; object-position: top center; background: var(--mint); }
+    .modal-image-placeholder { display: grid; place-items: center; color: var(--muted); font: 12px 'DM Mono', monospace; }
+    .modal-profile h2 { margin: 0; font: 28px/1.05 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .modal-subtitle { margin: 8px 0 0; color: var(--muted); font: 12px/1.5 'DM Mono', monospace; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 22px; }
+    .detail { padding: 10px; border-top: 1px solid #ded9d0; }
+    .detail-label { display: block; color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .detail-value { display: block; margin-top: 4px; font-weight: 800; font-size: 14px; }
+    .modal-link { display: inline-block; margin-top: 18px; color: var(--coral-dark); font: 12px 'DM Mono', monospace; }
+    [hidden] { display: none !important; }
+    @media (max-width: 520px) { .player-modal { padding: 18px; } .modal-profile { grid-template-columns: 96px 1fr; gap: 12px; } .modal-profile img, .modal-image-placeholder { width: 96px; height: 132px; } .modal-profile h2 { font-size: 21px; } .detail-grid { gap: 6px; } .detail { padding: 8px 4px; } .detail-value { font-size: 12px; overflow-wrap: anywhere; } }
+    @media (max-width: 700px) { main { padding-top: 24px; } h1 { font-size: 34px; } .selectors { gap: 12px; margin-bottom: 24px; } .comparison { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .team-heading { display: block; } .team-heading h2 { min-height: 2.2em; font-size: 16px; line-height: 1.1; overflow-wrap: anywhere; } .roster-count { display: block; margin-top: 5px; } .player-card { grid-template-columns: 22px 30px minmax(0, 1fr); gap: 3px; min-height: 52px; padding: 3px; } .player-card img, .image-placeholder { width: 30px; height: 42px; } .number { font-size: 15px; } .name { padding: 0; font-size: 10px; overflow-wrap: anywhere; } .player-meta { gap: 5px; margin-top: 2px; } .position, .stat { font-size: 8px; } .availability { font-size: 7px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="hub-link" href="index.html">← Back to hub</a>
+    <p class="kicker">NWSL / roster viewer</p>
+    <h1>Compare two teams.</h1>
+    <p class="intro">Choose any two teams to see their current squads, player images, shirt numbers, positions, goals, and assists.</p>
+    <section class="quick-pick"><h3>Quick pick</h3><div id="quickPickSection" class="games-grid"></div></section>
+    <div class="selectors"><div class="selector"><label for="teamOne">Team one</label><select id="teamOne"></select></div><div class="selector"><label for="teamTwo">Team two</label><select id="teamTwo"></select></div></div>
+    <div class="comparison"><section class="team-panel" aria-labelledby="teamOneTitle"><div class="team-heading"><h2 id="teamOneTitle"></h2><span id="teamOneCount" class="roster-count"></span></div><div id="teamOneRoster" class="roster"></div></section><section class="team-panel" aria-labelledby="teamTwoTitle"><div class="team-heading"><h2 id="teamTwoTitle"></h2><span id="teamTwoCount" class="roster-count"></span></div><div id="teamTwoRoster" class="roster"></div></section></div>
+    <div id="playerModalBackdrop" class="player-modal-backdrop" hidden><section id="playerModal" class="player-modal" role="dialog" aria-modal="true" aria-labelledby="modalPlayerName"><button id="modalClose" class="modal-close" type="button" aria-label="Close player details">×</button><div class="modal-profile"><div id="modalImageContainer"></div><div><h2 id="modalPlayerName"></h2><p id="modalSubtitle" class="modal-subtitle"></p></div></div><div id="detailGrid" class="detail-grid"></div><a id="modalLink" class="modal-link" target="_blank" rel="noreferrer">View player profile</a></section></div>
+  </main>
+  <script src="players.js?v=1"></script>
+  <script>
+    const teamOneSelect = document.getElementById('teamOne'); const teamTwoSelect = document.getElementById('teamTwo'); const quickPickSection = document.getElementById('quickPickSection');
+    const teams = [...new Set(allPlayers.map(player => player.team))].filter(Boolean).sort();
+    function fetchAndDisplayGames() { fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/usa.nwsl/scoreboard').then(r => r.json()).then(data => { const events = data.events || []; const localToday = new Date().toLocaleDateString('en-CA'); const todayGames = events .filter(game => { const gameDate = new Date(game.date); const gameLocalDate = gameDate.toLocaleDateString('en-CA'); return gameLocalDate === localToday; }) .sort((a, b) => new Date(a.date) - new Date(b.date)); if (todayGames.length === 0) { quickPickSection.className = 'empty-state'; quickPickSection.textContent = 'No games today'; return; } quickPickSection.className = 'games-grid'; quickPickSection.replaceChildren(...todayGames.map(game => { const comp = (game.competitions || [{}])[0]; const competitors = comp.competitors || []; const [away, home] = competitors.length >= 2 ? [competitors[0].team.displayName, competitors[1].team.displayName] : []; if (!away || !home) return document.createTextNode(''); const btn = document.createElement('button'); btn.className = 'game-btn'; btn.type = 'button'; const time = new Date(game.date); btn.innerHTML = `<span class="game-time">${time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>${away}<br>vs<br>${home}`; btn.addEventListener('click', () => { teamOneSelect.value = away; teamTwoSelect.value = home; render(); }); return btn; })); }).catch(() => { quickPickSection.className = 'empty-state'; quickPickSection.textContent = 'Unable to load games'; }); }
+    fetchAndDisplayGames();
+    function makeImage(player) { const image = document.createElement('img'); image.src = player.headshot || ''; image.alt = `${player.name} headshot`; image.onerror = () => { const placeholder = document.createElement('span'); placeholder.className = 'image-placeholder'; image.replaceWith(placeholder); }; return image; }
+    function statLine(player) { const g = Number(player.goals) || 0; const a = Number(player.assists) || 0; return `${g}G · ${a}A`; }
+    function makePlayerCard(player) { const card = document.createElement('button'); const status = player.status || 'Unknown'; const unavailable = /out|inactive|injured|suspended/i.test(status); card.className = `player-card${unavailable ? ' unavailable' : ''}`; card.type = 'button'; const number = document.createElement('span'); number.className = 'number'; number.textContent = player.jersey || '—'; const name = document.createElement('span'); name.className = 'name'; name.textContent = player.name; const meta = document.createElement('span'); meta.className = 'player-meta'; const position = document.createElement('small'); position.className = 'position'; position.textContent = player.position || 'Player'; const stat = document.createElement('small'); stat.className = 'stat'; stat.textContent = statLine(player); meta.append(position, stat); const availability = document.createElement('small'); availability.className = `availability${unavailable ? ' unavailable' : ''}`; availability.textContent = status; name.append(meta, availability); card.append(number, makeImage(player), name); card.addEventListener('click', () => openPlayerModal(player)); return card; }
+    function displayValue(value) { if (value == null || value === '') return '—'; if (typeof value === 'object') return value.name || value.displayName || value.shortName || '—'; return String(value); }
+    function openPlayerModal(player) { const image = makeImage(player); image.className = 'modal-image'; const imageContainer = document.getElementById('modalImageContainer'); imageContainer.replaceChildren(image); document.getElementById('modalPlayerName').textContent = player.name; document.getElementById('modalSubtitle').textContent = `${player.team}  |  #${player.jersey || '—'}  |  ${player.positionName || player.position || 'Player'}`; const details = [['Goals', displayValue(player.goals)], ['Assists', displayValue(player.assists)], ['Appearances', displayValue(player.appearances)], ['Age', displayValue(player.age)], ['Height', displayValue(player.height)], ['Citizenship', displayValue(player.citizenship)], ['Born', displayValue(player.birthPlace)], ['Status', displayValue(player.status)]]; document.getElementById('detailGrid').replaceChildren(...details.map(([label, value]) => { const detail = document.createElement('div'); detail.className = 'detail'; detail.innerHTML = `<span class="detail-label">${label}</span><span class="detail-value">${value}</span>`; return detail; })); const link = document.getElementById('modalLink'); link.hidden = !player.profile; link.href = player.profile || '#'; document.getElementById('playerModalBackdrop').hidden = false; document.body.style.overflow = 'hidden'; document.getElementById('modalClose').focus(); }
+    function closePlayerModal() { document.getElementById('playerModalBackdrop').hidden = true; document.body.style.overflow = ''; }
+    function renderTeam(team, title, count, roster) { const players = allPlayers.filter(player => player.team === team).sort((a, b) => Number(b.goals) - Number(a.goals) || a.name.localeCompare(b.name)); document.getElementById(title).textContent = team; document.getElementById(count).textContent = `${players.length} players`; const rosterElement = document.getElementById(roster); rosterElement.replaceChildren(...(players.length ? players.map(makePlayerCard) : [Object.assign(document.createElement('div'), { className: 'empty', textContent: 'No roster data available.' })])); }
+    function render() { renderTeam(teamOneSelect.value, 'teamOneTitle', 'teamOneCount', 'teamOneRoster'); renderTeam(teamTwoSelect.value, 'teamTwoTitle', 'teamTwoCount', 'teamTwoRoster'); }
+    teams.forEach((team, index) => { [teamOneSelect, teamTwoSelect].forEach(select => { const option = document.createElement('option'); option.value = team; option.textContent = team; select.append(option); }); if (index === 1) teamTwoSelect.value = team; });
+    teamOneSelect.addEventListener('change', render); teamTwoSelect.addEventListener('change', render); render();
+    document.getElementById('modalClose').addEventListener('click', closePlayerModal); document.getElementById('playerModalBackdrop').addEventListener('click', event => { if (event.target.id === 'playerModalBackdrop') closePlayerModal(); }); document.addEventListener('keydown', event => { if (event.key === 'Escape') closePlayerModal(); });
+  </script>
+</body>
+</html>
