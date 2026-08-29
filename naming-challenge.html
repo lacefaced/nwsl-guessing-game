@@ -189,7 +189,7 @@
     <ul id="guessedList"></ul>
 
     <div id="missingSection" style="display: none;">
-      <h3 style="color: #888; border-top: 2px dashed #eee; padding-top: 20px;">Should've Known (Sorted by Goals):</h3>
+      <h3 style="color: #888; border-top: 2px dashed #eee; padding-top: 20px;">Should've Known (Sorted by Appearances):</h3>
       <ul id="missedList"></ul>
     </div>
   </div>
@@ -297,15 +297,20 @@
       missingSection.style.display = 'block';
       shareActions.style.display = 'flex';
 
+      const num = v => Number(v) || 0;
       const missed = allPlayers
         .filter(p => !guessedPlayers.has(p.name))
-        .sort((a, b) => (Number(b.goals) || 0) - (Number(a.goals) || 0));
+        .sort((a, b) =>
+          num(b.appearances) - num(a.appearances) ||
+          num(b.goalContributions) - num(a.goalContributions) ||
+          a.name.localeCompare(b.name)
+        );
       missed.forEach(m => {
         const li = document.createElement('li');
         li.className = 'missed';
         const posBadge = m.position ? `<span class="position-badge">(${m.position})</span>` : '';
-        const goals = Number(m.goals) || 0;
-        li.innerHTML = `${m.name} ${posBadge} [${m.team}] - <span class="goal-badge">${goals} goal${goals === 1 ? '' : 's'}</span>`;
+        const apps = num(m.appearances);
+        li.innerHTML = `${m.name} ${posBadge} [${m.team}] - <span class="goal-badge">${apps} app${apps === 1 ? '' : 's'}</span>`;
         missedList.appendChild(li);
       });
     });
