@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NWSL Crest Match</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap');
+    :root { --ink: #17222c; --muted: #71808b; --paper: #f5f1e9; --white: #fffdf8; --coral: #f05a47; --coral-dark: #c63e35; --mint: #b8e6d1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: Manrope, sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .3; background-image: radial-gradient(#c9c2b6 1px, transparent 1px); background-size: 18px 18px; }
+    main { position: relative; width: min(980px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 60px; }
+    .game-nav { display: grid; gap: 2px; width: fit-content; margin-bottom: 36px; padding: 10px 14px; border-left: 3px solid var(--coral); background: rgba(255,253,248,.72); font: 12px/1.7 'DM Mono', monospace; }
+    .game-nav-label { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .game-nav a { color: var(--muted); text-decoration: none; }
+    .game-nav a:hover, .game-nav a.active { color: var(--coral-dark); }
+    .hub-link { display: inline-block; margin: 0 0 18px; color: var(--coral-dark); font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; text-decoration: none; }
+    .hub-link:hover { text-decoration: underline; }
+    header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 36px; }
+    .kicker { margin: 0 0 8px; color: var(--coral-dark); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 600px; margin: 0; font: 42px/1.02 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .intro { max-width: 420px; margin: 14px 0 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .scoreboard { display: flex; align-items: center; gap: 24px; padding: 14px 18px; border: 1px solid var(--ink); background: var(--white); box-shadow: 5px 5px 0 var(--ink); }
+    .score-number { font: 28px 'Archivo Black', sans-serif; }
+    .score-label { display: block; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .game-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .game-bar h2 { margin: 0; font: 21px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .round-label { color: var(--muted); font: 12px 'DM Mono', monospace; }
+    .board { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(280px, 1.2fr); gap: 26px; align-items: start; }
+    .column-title { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 10px; font: 11px 'DM Mono', monospace; letter-spacing: .09em; text-transform: uppercase; }
+    .column-title span { color: var(--muted); font-size: 10px; }
+    .cards { display: grid; gap: 10px; }
+    .logo-stage { display: grid; place-items: center; min-height: 360px; padding: 24px; border: 1px solid var(--ink); background: var(--white); box-shadow: 0 10px 0 rgba(23,34,44,.08); }
+    .logo-stage .logo { flex-basis: 190px; width: 190px; height: 190px; margin: 0; padding: 16px; }
+    .question-label { margin: 18px 0 0; color: var(--muted); font: 11px 'DM Mono', monospace; text-align: center; text-transform: uppercase; }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    .match-card { display: flex; align-items: center; width: 100%; min-height: 62px; padding: 8px 14px; border: 1px solid var(--ink); color: var(--ink); background: var(--white); box-shadow: 0 8px 0 rgba(23,34,44,.08); text-align: left; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .match-card:hover:not(:disabled) { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 rgba(23,34,44,.14); }
+    .match-card.selected { border: 3px solid var(--coral); padding: 6px 12px; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 rgba(240,90,71,.2); }
+    .match-card.matched { background: var(--mint); border-color: #5c9c7e; box-shadow: none; transform: none; }
+    .answer-card.correct { background: var(--mint); border-color: #5c9c7e; }
+    .match-card.wrong { background: #ffd8d1; border-color: var(--coral); animation: shake .3s ease; }
+    .logo { display: grid; place-items: center; flex: 0 0 56px; width: 56px; height: 56px; margin-right: 14px; padding: 5px; background: #eef1ea; object-fit: contain; }
+    .logo-fallback { background: #68c5b4; color: var(--ink); font: 800 14px 'DM Mono', monospace; }
+    .card-copy { font-weight: 800; font-size: 15px; line-height: 1.25; }
+    .card-copy small { display: block; margin-top: 4px; color: #2d7d58; font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .status { min-height: 28px; margin: 26px 0 0; color: var(--muted); font: 12px 'DM Mono', monospace; text-align: center; }
+    .status.success { color: #2d7d58; } .status.error { color: var(--coral-dark); }
+    .next-round { display: block; margin: 8px auto 0; padding: 13px 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--white); cursor: pointer; font: 800 13px Manrope, sans-serif; text-transform: uppercase; }
+    .next-round:hover { background: var(--coral); border-color: var(--coral); }
+    .result-panel { max-width: 390px; margin: 20px auto 0; padding: 18px; border: 1px solid var(--ink); background: var(--white); text-align: center; }
+    .result-heading { margin: 0 0 5px; font: 16px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .result-summary { margin: 0 0 14px; color: var(--muted); font: 12px 'DM Mono', monospace; }
+    .result-button { padding: 10px 16px; border: 1px solid var(--coral); background: var(--coral); color: white; cursor: pointer; font: 800 12px Manrope, sans-serif; text-transform: uppercase; }
+    .result-button:hover { background: var(--coral-dark); border-color: var(--coral-dark); }
+    .share-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .copy-button { border-color: var(--ink); background: var(--ink); }
+    @keyframes shake { 25% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+    @media (max-width: 700px) { main { padding-top: 20px; } header { display: block; margin-bottom: 30px; } h1 { font-size: 34px; } .intro { max-width: none; margin-bottom: 20px; } .scoreboard { width: fit-content; } .board { grid-template-columns: 1fr; gap: 20px; } .logo-stage { min-height: 230px; } .logo-stage .logo { flex-basis: 140px; width: 140px; height: 140px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="hub-link" href="index.html">← Back to hub</a>
+    <nav class="game-nav" aria-label="NWSL games">
+      <span class="game-nav-label">NWSL games</span>
+      <a href="naming-challenge.html">01 / Naming Challenge</a>
+      <a class="active" href="crest-match.html" aria-current="page">02 / Crest Match</a>
+      <a href="rosters.html">Roster Viewer</a>
+    </nav>
+    <header>
+      <div><p class="kicker">NWSL / crest match</p><h1>Know the crests.</h1><p class="intro">Identify each NWSL club from its crest. Every question asks for either the club name or its home city.</p></div>
+      <div class="scoreboard" aria-label="Game score"><div><span id="score" class="score-number">0</span><span class="score-label">correct</span></div><div><span id="misses" class="score-number">0</span><span class="score-label">misses</span></div></div>
+    </header>
+    <section aria-labelledby="gameTitle">
+      <div class="game-bar"><h2 id="gameTitle">Crest match</h2><span id="roundLabel" class="round-label"></span></div>
+      <div class="board"><div><h3 class="column-title">Crest <span id="questionType"></span></h3><div id="logoStage" class="logo-stage"></div></div><div><h3 id="answerHeading" class="column-title">Choose an answer <span>one click</span></h3><div id="answerCards" class="cards"></div></div></div>
+      <p id="status" class="status" role="status" aria-live="polite">Choose the correct answer.</p>
+      <div id="resultPanel" class="result-panel" hidden><h3 class="result-heading">Your score</h3><p id="resultSummary" class="result-summary"></p><div class="share-actions"><button id="shareButton" class="result-button" type="button">Share with link</button><button id="copyButton" class="result-button copy-button" type="button">Copy score</button></div></div>
+    </section>
+  </main>
+  <script src="players.js?v=1"></script>
+  <script>
+    const teamCrests = {
+      'Angel City FC': { city: 'Los Angeles', id: '21422' },
+      'Bay FC': { city: 'San Francisco Bay Area', id: '22187' },
+      'Boston Legacy FC': { city: 'Boston', id: '131562' },
+      'Chicago Stars FC': { city: 'Chicago', id: '15360' },
+      'Denver Summit FC': { city: 'Denver', id: '131563' },
+      'Gotham FC': { city: 'New York / New Jersey', id: '15364' },
+      'Houston Dash': { city: 'Houston', id: '17346' },
+      'Kansas City Current': { city: 'Kansas City', id: '20907' },
+      'North Carolina Courage': { city: 'North Carolina', id: '15366' },
+      'Orlando Pride': { city: 'Orlando', id: '18206' },
+      'Portland Thorns FC': { city: 'Portland', id: '15362' },
+      'Racing Louisville FC': { city: 'Louisville', id: '20905' },
+      'San Diego Wave FC': { city: 'San Diego', id: '21423' },
+      'Seattle Reign FC': { city: 'Seattle', id: '15363' },
+      'Utah Royals': { city: 'Utah', id: '19141' },
+      'Washington Spirit': { city: 'Washington, D.C.', id: '15365' }
+    };
+    const logoStage = document.getElementById('logoStage'); const answerCards = document.getElementById('answerCards'); const answerHeading = document.getElementById('answerHeading'); const questionType = document.getElementById('questionType'); const status = document.getElementById('status');
+    const scoreDisplay = document.getElementById('score'); const missesDisplay = document.getElementById('misses'); const resultPanel = document.getElementById('resultPanel'); const resultSummary = document.getElementById('resultSummary'); const shareButton = document.getElementById('shareButton'); const copyButton = document.getElementById('copyButton');
+    const teams = [...new Set(allPlayers.map(player => player.team))].filter(team => teamCrests[team]).sort();
+    function shuffle(items) { return [...items].sort(() => Math.random() - .5); }
+    const questionOrder = shuffle(teams.flatMap(team => [{ team, type: 'name' }, { team, type: 'city' }]));
+    let score = 0; let misses = 0; let questionIndex = 0; let currentTeam = null; let currentType = null; let questionTeams = [];
+    function answerText(team) { return currentType === 'name' ? team : teamCrests[team].city; }
+    function makeLogo(team) { const image = document.createElement('img'); image.className = 'logo'; image.src = `https://a.espncdn.com/i/teamlogos/soccer/500/${teamCrests[team].id}.png`; image.alt = `${team} crest`; image.onerror = () => { const fallback = document.createElement('span'); fallback.className = 'logo logo-fallback'; fallback.textContent = team.split(' ').map(word => word[0]).join('').slice(0, 3); image.replaceWith(fallback); }; return image; }
+    function makeAnswer(team) { const card = document.createElement('button'); card.className = 'match-card answer-card'; card.type = 'button'; card.textContent = answerText(team); card.addEventListener('click', () => answer(card, team)); return card; }
+    let questionAttempted = false;
+    function answer(card, team) { if (card.disabled) return; if (!questionAttempted) { questionAttempted = true; if (team === currentTeam) { score += 1; scoreDisplay.textContent = score; } else { misses += 1; missesDisplay.textContent = misses; } } if (team === currentTeam) { answerCards.querySelectorAll('button').forEach(button => { button.disabled = true; }); card.classList.add('correct'); status.textContent = 'Correct. Next crest.'; status.className = 'status success'; updateResultPanel(); setTimeout(nextQuestion, 350); } else { card.classList.add('wrong'); status.textContent = 'Not quite. Try another answer.'; status.className = 'status error'; updateResultPanel(); setTimeout(() => card.classList.remove('wrong'), 350); } }
+    function nextQuestion() { if (questionIndex === questionOrder.length) return finishGame(); const question = questionOrder[questionIndex]; currentTeam = question.team; currentType = question.type; questionAttempted = false; questionIndex += 1; questionType.textContent = currentType === 'name' ? 'club name' : 'home city'; answerHeading.firstChild.textContent = currentType === 'name' ? 'Club name ' : 'Home city '; logoStage.replaceChildren(makeLogo(currentTeam)); questionTeams = shuffle([currentTeam, ...shuffle(teams.filter(team => team !== currentTeam)).slice(0, 4)]); answerCards.replaceChildren(...shuffle(questionTeams).map(makeAnswer)); document.getElementById('roundLabel').textContent = `Question ${questionIndex} of ${questionOrder.length}`; status.textContent = 'Choose the correct answer.'; status.className = 'status'; }
+    function updateResultPanel() { resultSummary.textContent = `${score} right  |  ${misses} wrong  |  ${questionIndex}/${questionOrder.length} answered`; resultPanel.hidden = false; }
+    function scoreText(includeLink) { return `NWSL Crest Match\n${score} right  |  ${misses} wrong\n${questionIndex}/${questionOrder.length} answered${includeLink ? `\n${location.href}` : ''}`; }
+    async function shareScore() { try { await navigator.clipboard.writeText(scoreText(true)); shareButton.textContent = 'Link copied'; setTimeout(() => { shareButton.textContent = 'Share with link'; }, 1500); } catch { shareButton.textContent = 'Copy unavailable'; setTimeout(() => { shareButton.textContent = 'Share with link'; }, 1500); } }
+    async function copyScore() { try { await navigator.clipboard.writeText(scoreText(false)); copyButton.textContent = 'Score copied'; } catch { copyButton.textContent = 'Copy unavailable'; } }
+    function finishGame() { updateResultPanel(); resultPanel.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    shareButton.addEventListener('click', shareScore); copyButton.addEventListener('click', copyScore);
+    nextQuestion();
+  </script>
+</body>
+</html>

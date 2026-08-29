@@ -48,7 +48,10 @@ Three layers, connected only by a generated file:
 3. **`*.html` pages** — one self-contained file per game/tool. Each is plain
    HTML/CSS/JS with no dependencies, loads `<script src="players.js?v=1">`,
    and reads the global `allPlayers`. `index.html` is the hub; `rosters.html`
-   is the team-compare tool; `naming-challenge.html` is the first game.
+   is the team-compare tool; `naming-challenge.html` and `crest-match.html`
+   are the games. `crest-match.html` carries its own `teamCrests` map (team
+   name → home city + ESPN team id) because crest images key off the numeric
+   id at `a.espncdn.com/i/teamlogos/soccer/500/{id}.png`, not off `players.js`.
 
 ### Daily refresh
 
