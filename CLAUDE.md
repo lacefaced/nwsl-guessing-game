@@ -82,3 +82,9 @@ consistent with it rather than introducing a stylesheet:
 - When a game is added, flip its `index.html` card from a disabled
   `<span class="game-card soon">` to an `<a class="game-card" href="...">` and
   add it to every page's `.game-nav`.
+- The two-column game pages (`crest-match.html`, `stat-leaders.html`) share a
+  `.board` grid that collapses to one column at `max-width: 700px`, with a
+  second `max-width: 480px` block for phone-specific tightening (smaller `h1`,
+  wrapped `.column-title`, shorter prompt/crest stage). Keep both breakpoints in
+  sync across those pages. Note headless Chrome floors the viewport near 500px,
+  so verify true phone width by loading the page inside a 375px `<iframe>`.

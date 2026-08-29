@@ -68,7 +68,27 @@
     .share-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
     .copy-button { border-color: var(--ink); background: var(--ink); }
     @keyframes shake { 25% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
-    @media (max-width: 700px) { main { padding-top: 20px; } header { display: block; margin-bottom: 30px; } h1 { font-size: 34px; } .intro { max-width: none; margin-bottom: 20px; } .scoreboard { width: fit-content; } .board { grid-template-columns: 1fr; gap: 20px; } .logo-stage { min-height: 230px; } .logo-stage .logo { flex-basis: 140px; width: 140px; height: 140px; } }
+    @media (max-width: 700px) {
+      main { padding-top: 20px; }
+      header { display: block; margin-bottom: 26px; }
+      h1 { font-size: 34px; }
+      .intro { max-width: none; margin: 12px 0 20px; }
+      .scoreboard { width: fit-content; gap: 18px; padding: 12px 16px; box-shadow: 4px 4px 0 var(--ink); }
+      .game-bar { flex-wrap: wrap; gap: 4px 12px; margin-bottom: 16px; }
+      .game-bar h2 { font-size: 18px; }
+      .round-label { flex-basis: 100%; }
+      .board { grid-template-columns: 1fr; gap: 18px; }
+      .logo-stage { min-height: 200px; }
+      .logo-stage .logo { flex-basis: 150px; width: 150px; height: 150px; }
+    }
+    @media (max-width: 480px) {
+      main { width: calc(100% - 20px); }
+      h1 { font-size: 29px; }
+      .column-title { flex-wrap: wrap; gap: 2px; }
+      .column-title span { font-size: 9px; }
+      .logo-stage { min-height: 168px; padding: 18px; }
+      .match-card { min-height: 56px; padding: 8px 12px; }
+    }
   </style>
 </head>
 <body>
