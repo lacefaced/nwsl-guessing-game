@@ -77,8 +77,12 @@ consistent with it rather than introducing a stylesheet:
 - An `.hub-link` back to `index.html`; games also carry a `.game-nav` block
   linking the sibling pages, with the current page marked
   `class="active" aria-current="page"`.
-- Player-name matching normalizes curly apostrophes and whitespace
-  (`normalizePlayerName`) and sorts "missed" lists by `goals` descending.
+- `naming-challenge.html`'s `normalizePlayerName` folds accents (NFKD +
+  stripping `\p{Mn}`/`\p{Cf}`, plus explicit ø/ł/æ/ß), unifies apostrophes, and
+  treats hyphens as spaces, so "Nadia" matches "Nádia Gomes". Its dropdown shows
+  5+ character substrings anywhere in a name, plus any name part under 5
+  characters once typed in full ("Sam", "Lara"). The "missed" list is ordered by
+  appearances, then goal contributions.
 - When a game is added, flip its `index.html` card from a disabled
   `<span class="game-card soon">` to an `<a class="game-card" href="...">` and
   add it to every page's `.game-nav`.

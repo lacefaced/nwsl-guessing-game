@@ -215,7 +215,15 @@
     document.getElementById('total').textContent = allPlayers.length;
 
     function normalizePlayerName(name) {
-      return name.normalize('NFKC').replace(/[‘’ʼ＇]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
+      return name
+        .toLowerCase()
+        .normalize('NFKD')                    // split accented letters: á -> a + combining mark
+        .replace(/[\p{Mn}\p{Cf}]/gu, '')      // drop combining marks (á->a, š->s, ñ->n) and hidden format chars (soft hyphen, zero-width)
+        .replace(/ø/g, 'o').replace(/ł/g, 'l').replace(/æ/g, 'ae').replace(/ß/g, 'ss') // letters NFKD can't split
+        .replace(/[‘’ʼ＇`´]/g, "'")           // unify apostrophes
+        .replace(/-/g, ' ')                   // treat hyphens as spaces
+        .replace(/\s+/g, ' ')
+        .trim();
     }
 
     // Helper to add player and update UI
@@ -246,15 +254,21 @@
       dropdown.style.display = 'none';
     }
 
-    // Input matching & Dropdown logic (Threshold: 5 characters)
+    // Input matching & Dropdown logic.
+    // General rule: 5+ characters match as a substring anywhere in the name.
+    // Short-name rule: a name part under 5 characters (e.g. "Lara", "Sam")
+    // matches once it is typed out in full.
     input.addEventListener('input', () => {
       const val = normalizePlayerName(input.value);
       dropdown.innerHTML = '';
 
-      if (val.length >= 5) {
-        const matches = allPlayers.filter(p =>
-          normalizePlayerName(p.name).includes(val) && !guessedPlayers.has(p.name)
-        );
+      if (val.length >= 2) {
+        const matches = allPlayers.filter(p => {
+          if (guessedPlayers.has(p.name)) return false;
+          const norm = normalizePlayerName(p.name);
+          if (val.length >= 5 && norm.includes(val)) return true;
+          return norm.split(' ').some(part => part === val && part.length < 5);
+        });
 
         if (matches.length > 0) {
           dropdown.style.display = 'block';
