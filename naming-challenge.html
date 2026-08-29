@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NWSL Naming Challenge</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap');
+    :root { --ink: #17222c; --muted: #71808b; --paper: #f5f1e9; --white: #fffdf8; --coral: #f05a47; --coral-dark: #c63e35; --mint: #b8e6d1; }
+    * { box-sizing: border-box; }
+    body { position: relative; width: min(700px, calc(100% - 28px)); margin: 0 auto; padding: 34px 0 60px; color: var(--ink); background: var(--paper); font-family: Manrope, sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .3; background-image: radial-gradient(#c9c2b6 1px, transparent 1px); background-size: 18px 18px; }
+    .game-container { position: relative; }
+    .game-nav { display: grid; gap: 2px; width: fit-content; margin-bottom: 34px; padding: 10px 14px; border-left: 3px solid var(--coral); background: rgba(255,253,248,.72); font: 12px/1.7 'DM Mono', monospace; }
+    .game-nav-label { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .game-nav a { color: var(--muted); text-decoration: none; }
+    .game-nav a:hover, .game-nav a.active { color: var(--coral-dark); }
+    .hub-link { display: inline-block; margin: 0 0 18px; color: var(--coral-dark); font: 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; text-decoration: none; }
+    .hub-link:hover { text-decoration: underline; }
+    h1 { margin: 0; font: 40px/1.05 'Archivo Black', sans-serif; text-transform: uppercase; }
+    h2 { margin: 0 0 8px; color: var(--coral-dark); font: 25px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    h3 { margin: 28px 0 10px; font: 16px 'Archivo Black', sans-serif; text-transform: uppercase; }
+    .kicker { margin: 0 0 8px; color: var(--coral-dark); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .intro { max-width: 500px; margin: 14px 0 28px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .score { margin-bottom: 20px; color: var(--muted); font: 12px 'DM Mono', monospace; text-transform: uppercase; }
+    .score span { color: var(--coral-dark); font: 22px 'Archivo Black', sans-serif; }
+    .input-wrapper { position: relative; margin-bottom: 18px; }
+    input { width: 100%; padding: 14px; color: var(--ink); font: 600 15px Manrope, sans-serif; border: 1px solid var(--ink); background: var(--white); box-shadow: 0 8px 0 rgba(23,34,44,.08); }
+    input:focus { border-color: var(--coral); outline: 3px solid rgba(240,90,71,.2); }
+    .dropdown { position: absolute; top: 100%; left: 0; right: 0; z-index: 2; display: none; max-height: 200px; overflow-y: auto; border: 1px solid var(--coral); border-top: none; background: var(--white); box-shadow: 6px 6px 0 rgba(23,34,44,.12); }
+    .dropdown-item { padding: 12px 14px; border-bottom: 1px solid #e7e1d8; font-size: 14px; cursor: pointer; }
+    .dropdown-item:hover { background: #fff0ec; color: var(--coral-dark); }
+    .finish-area { margin-top: 34px; padding-top: 18px; border-top: 1px dashed #cfc8bd; }
+    .action-btn { width: 100%; padding: 14px; border: 1px solid var(--ink); background: var(--ink); color: white; font: 800 13px Manrope, sans-serif; cursor: pointer; }
+    .finish-area .action-btn { background: transparent; color: var(--muted); border-color: #b9b1a5; }
+    .finish-area .action-btn:hover { background: #fff0ec; color: var(--coral-dark); border-color: var(--coral); }
+    button:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    ul { list-style: none; padding: 0; margin: 0 0 30px; }
+    li { padding: 10px 0; border-bottom: 1px solid #ded9d0; font-size: 14px; }
+    .guessed-item { display: flex; align-items: center; }
+    .guessed-img { width: 45px; height: 45px; margin-right: 15px; object-fit: cover; border-radius: 50%; background: var(--mint); }
+    .guessed-text-team, .missed { color: var(--muted); }
+    .position-badge { color: var(--muted); font: 11px 'DM Mono', monospace; margin-left: 5px; }
+    .goal-badge { color: var(--coral-dark); font-weight: 800; }
+    .share-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    .share-actions .action-btn { flex: 1; width: auto; }
+    .copy-button { background: var(--ink); }
+    .feature { margin-top: 30px; padding: 22px; border: 1px solid var(--ink); background: var(--white); box-shadow: 8px 8px 0 rgba(23,34,44,.1); text-align: center; }
+    body:has(#feature:not(.hidden))::after { content: ""; position: fixed; inset: 0; z-index: 9; background: rgba(23,34,44,.72); }
+    .feature { position: fixed; inset: 50% auto auto 50%; z-index: 10; width: min(620px, calc(100% - 28px)); max-height: calc(100vh - 28px); margin: 0; overflow-y: auto; transform: translate(-50%, -50%); box-shadow: 10px 10px 0 rgba(23,34,44,.25); }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; font: 800 18px/1 Manrope, sans-serif; }
+    .modal-close:hover { background: var(--coral); color: white; }
+    .feature h2 { margin-bottom: 18px; }
+    .figure { position: relative; width: 150px; height: 210px; margin: 0 auto 18px; }
+    .figure-head { position: absolute; top: 0; left: 40px; width: 70px; height: 78px; overflow: hidden; border: 3px solid var(--ink); border-radius: 50%; background: var(--mint); }
+    .figure-head img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+    .figure-head.fallback::after { content: "?"; display: grid; place-items: center; height: 100%; color: var(--ink); font: 32px 'Archivo Black', sans-serif; }
+    .body-line, .arm, .leg { position: absolute; display: block; width: 4px; background: var(--ink); }
+    .body-line { top: 78px; left: 73px; height: 78px; }
+    .arm { top: 96px; height: 62px; transform-origin: top center; }
+    .arm-left { left: 51px; transform: rotate(45deg); }
+    .arm-right { left: 95px; transform: rotate(-45deg); }
+    .leg { top: 150px; height: 62px; transform-origin: top center; }
+    .leg-left { left: 73px; transform: rotate(25deg); }
+    .leg-right { left: 73px; transform: rotate(-25deg); }
+    .egg { position: absolute; top: 143px; left: 124px; z-index: 1; width: 22px; height: 29px; border: 3px solid var(--ink); border-radius: 50% 50% 48% 48%; background: #fff7d6; transform: rotate(18deg); animation: eggWobble 1.8s ease-in-out infinite; }
+    @keyframes eggWobble { 50% { transform: rotate(28deg) translateY(-2px); } }
+    .fact { margin: 0 auto; max-width: 480px; font-size: 18px; line-height: 1.5; }
+    .checkout { margin-top: 24px; padding-top: 20px; border-top: 1px dashed #cfc8bd; text-align: left; }
+    .checkout h3 { margin: 0 0 6px; }
+    .checkout-note { margin: 0 0 14px; color: var(--coral-dark); font: 11px 'DM Mono', monospace; text-transform: uppercase; }
+    .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .checkout-field { display: grid; gap: 5px; }
+    .checkout-field.full { grid-column: 1 / -1; }
+    .checkout-field label { color: var(--muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+    .checkout-field input { width: 100%; padding: 10px; border: 1px solid #b9b1a5; background: #f7f2e8; color: var(--ink); font: 600 14px 'DM Mono', monospace; }
+    .checkout-field input:focus { outline: none; }
+    .checkout-button { display: block; width: 100%; margin-top: 14px; padding: 13px; border: 1px solid var(--coral); background: var(--coral); color: white; font: 800 13px Manrope, sans-serif; text-align: center; text-decoration: none; }
+    .checkout-button:hover { background: var(--coral-dark); }
+    .hidden { display: none; }
+    @media (max-width: 520px) { body { padding-top: 24px; } h1 { font-size: 32px; } .fact { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <a class="hub-link" href="index.html">← Back to hub</a>
+    <nav class="game-nav" aria-label="NWSL games">
+      <span class="game-nav-label">NWSL</span>
+      <a class="active" href="naming-challenge.html" aria-current="page">01 / Naming Challenge</a>
+      <a href="rosters.html">Roster Viewer</a>
+    </nav>
+    <p class="kicker">NWSL / naming challenge</p>
+    <h1>Name the players.</h1>
+    <p class="intro">Identify as many NWSL players as you can. Start typing a name and choose a match from the list.</p>
+    <div class="score">Players Found: <span id="count">0</span> / <span id="total">0</span></div>
+    <div class="input-wrapper"><input type="text" id="playerInput" placeholder="Start typing a player name..." autocomplete="off" data-bwignore="true" data-1p-ignore="true" data-lpignore="true"><div id="dropdown" class="dropdown"></div></div>
+    <div class="finish-area"><button id="finishBtn" class="action-btn" type="button">Finish and show missed players</button></div>
+    <div id="shareActions" class="share-actions hidden"><button id="shareBtn" class="action-btn" type="button">Share with link</button><button id="copyBtn" class="action-btn copy-button" type="button">Copy score</button></div>
+    <h3>Guessed Players:</h3><ul id="guessedList"></ul>
+    <section id="feature" class="feature hidden" role="dialog" aria-modal="true" aria-labelledby="featureTitle"><button id="closeFeature" class="modal-close" type="button" aria-label="Close reveal">×</button><h2 id="featureTitle">Meet your mystery player</h2><div class="figure"><div id="figureHead" class="figure-head"><img id="playerHead" alt=""></div><span class="body-line"></span><span class="arm arm-left"></span><span class="arm arm-right"></span><span class="leg leg-left"></span><span class="leg leg-right"></span><span class="egg" aria-label="Egg"></span></div><p id="fact" class="fact"></p><div class="checkout"><h3>Pitchside ticket checkout</h3><p class="checkout-note">Because you did so well, you get pitchside seats.</p><div class="checkout-grid"><div class="checkout-field full"><label for="checkoutName">Name</label><input id="checkoutName" type="text" value="" readonly></div><div class="checkout-field full"><label for="checkoutNumber">Card number</label><input id="checkoutNumber" type="text" value="" readonly></div><div class="checkout-field"><label for="checkoutExpiry">Exp</label><input id="checkoutExpiry" type="text" value="" readonly></div><div class="checkout-field"><label for="checkoutCcv">CCV</label><input id="checkoutCcv" type="text" value="" readonly></div></div><p class="checkout-note">Just a joke. No payment required.</p><a class="checkout-button" href="https://www.youtube.com/watch?v=I0RC2Z-V1I0">Finish checkout</a></div></section>
+    <div id="missingSection" class="hidden"><h3>Should've Known (Sorted by Goals):</h3><ul id="missedList"></ul></div>
+  </div>
+  <script src="players.js?v=1"></script>
+  <script>
+    const guessedPlayers = new Set();
+    const input = document.getElementById('playerInput'); const dropdown = document.getElementById('dropdown'); const guessedList = document.getElementById('guessedList'); const missedList = document.getElementById('missedList');
+    const countDisplay = document.getElementById('count'); const finishBtn = document.getElementById('finishBtn'); const shareActions = document.getElementById('shareActions'); const shareBtn = document.getElementById('shareBtn'); const copyBtn = document.getElementById('copyBtn'); const missingSection = document.getElementById('missingSection'); const feature = document.getElementById('feature'); const closeFeature = document.getElementById('closeFeature');
+    document.getElementById('total').textContent = allPlayers.length;
+    function normalizePlayerName(name) { return name.normalize('NFKC').replace(/[‘’ʼ＇]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase(); }
+    function addPlayer(player) { if (guessedPlayers.has(player.name)) return; guessedPlayers.add(player.name); const item = document.createElement('li'); item.innerHTML = `<div class="guessed-item"><img src="${player.headshot || ''}" alt="${player.name}" class="guessed-img" onerror="this.style.display='none'"><div><strong>${player.name}</strong><br><span class="guessed-text-team">${player.team}</span></div></div>`; guessedList.insertBefore(item, guessedList.firstChild); countDisplay.textContent = guessedPlayers.size; input.value = ''; dropdown.replaceChildren(); dropdown.style.display = 'none'; }
+    input.addEventListener('input', () => { const value = normalizePlayerName(input.value); dropdown.replaceChildren(); if (value.length >= 4) { allPlayers.filter(player => normalizePlayerName(player.name).includes(value) && !guessedPlayers.has(player.name)).forEach(player => { const item = document.createElement('div'); item.className = 'dropdown-item'; item.textContent = player.name; item.addEventListener('click', () => addPlayer(player)); dropdown.appendChild(item); }); dropdown.style.display = dropdown.childElementCount ? 'block' : 'none'; } else dropdown.style.display = 'none'; const exact = allPlayers.find(player => normalizePlayerName(player.name) === value && !guessedPlayers.has(player.name)); if (exact) addPlayer(exact); });
+    document.addEventListener('click', event => { if (!input.contains(event.target) && !dropdown.contains(event.target)) dropdown.style.display = 'none'; });
+    const factPhrases = [
+      'Hey I’m [name] and I play for the Kentucky Fried Swashbucklers. A few of my favorite foods are Eggs.',
+      'Howdy! I’m [name] and I play for the Reno Protein Powder Salads. A few of my favorite foods are Eggs.',
+      'Hey there! I’m [name] and I play for the Pflugerville ShitStains. A few of my favorite foods are Eggs.',
+      'Hey partner! I’m [name] and I play for the Cutoff Turkey Hot Dogs (they are healthier). A few of my favorite foods are Eggs.'
+    ];
+    finishBtn.addEventListener('click', () => { input.disabled = true; finishBtn.disabled = true; finishBtn.textContent = 'Game complete'; dropdown.style.display = 'none'; shareActions.classList.remove('hidden'); missingSection.classList.remove('hidden'); const missed = allPlayers.filter(player => !guessedPlayers.has(player.name)).sort((a, b) => b.goals - a.goals); const topMissed = missed[0]; if (topMissed) { const image = document.getElementById('playerHead'); image.src = topMissed.headshot || ''; image.alt = `${topMissed.name} headshot`; image.onerror = () => { document.getElementById('figureHead').classList.add('fallback'); image.remove(); }; const phrase = factPhrases[Math.floor(Math.random() * factPhrases.length)]; document.getElementById('fact').textContent = phrase.replace('[name]', topMissed.name); document.getElementById('checkoutName').value = 'Jeremy Wilson'; setTimeout(() => { document.getElementById('checkoutNumber').value = '0000 0000 0000 0000'; }, 450); setTimeout(() => { document.getElementById('checkoutExpiry').value = '12/99'; document.getElementById('checkoutCcv').value = '000'; }, 900); feature.classList.remove('hidden'); document.body.style.overflow = 'hidden'; closeFeature.focus(); } missed.forEach(player => { const item = document.createElement('li'); item.className = 'missed'; const goals = Number(player.goals) || 0; item.textContent = `${player.name} [${player.team}] - ${goals} goal${goals === 1 ? '' : 's'}`; missedList.appendChild(item); }); });
+    closeFeature.addEventListener('click', () => { feature.classList.add('hidden'); document.body.style.overflow = ''; });
+    function scoreText(includeLink) { const found = guessedPlayers.size; const total = allPlayers.length; const percentage = Math.round((found / total) * 100); return `NWSL Naming Challenge\n${found}/${total} players found (${percentage}%)${includeLink ? `\n${location.href}` : ''}`; }
+    shareBtn.addEventListener('click', async () => { try { await navigator.clipboard.writeText(scoreText(true)); shareBtn.textContent = 'Link copied'; setTimeout(() => { shareBtn.textContent = 'Share with link'; }, 1500); } catch { shareBtn.textContent = 'Copy unavailable'; } });
+    copyBtn.addEventListener('click', async () => { try { await navigator.clipboard.writeText(scoreText(false)); copyBtn.textContent = 'Score copied'; } catch { copyBtn.textContent = 'Copy unavailable'; } });
+  </script>
+</body>
+</html>
