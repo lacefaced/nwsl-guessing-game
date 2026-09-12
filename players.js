@@ -5302,11 +5302,11 @@ const allPlayers = [
   {
     "id": "327082",
     "name": "Jordan Fusco",
-    "team": "San Diego Wave FC",
+    "team": "Racing Louisville FC",
     "position": "M",
     "positionName": "Midfielder",
     "jersey": "28",
-    "age": 22,
+    "age": 23,
     "height": "5' 9\"",
     "citizenship": "USA",
     "birthPlace": "",
