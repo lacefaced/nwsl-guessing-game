@@ -8331,7 +8331,7 @@ const allPlayers = [
     "position": "D",
     "positionName": "Defender",
     "jersey": "18",
-    "age": 20,
+    "age": 21,
     "height": "5' 7\"",
     "citizenship": "Japan",
     "birthPlace": "",
