@@ -2781,7 +2781,7 @@ const allPlayers = [
     "position": "F",
     "positionName": "Forward",
     "jersey": "16",
-    "age": 23,
+    "age": 24,
     "height": "5' 8\"",
     "citizenship": "USA",
     "birthPlace": "",
