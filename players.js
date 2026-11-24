@@ -9231,7 +9231,7 @@ const allPlayers = [
     "position": "M",
     "positionName": "Midfielder",
     "jersey": "17",
-    "age": 29,
+    "age": 30,
     "height": "5' 3\"",
     "citizenship": "USA",
     "birthPlace": "",
