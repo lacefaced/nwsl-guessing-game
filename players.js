@@ -6806,7 +6806,7 @@ const allPlayers = [
     "position": "G",
     "positionName": "Goalkeeper",
     "jersey": "27",
-    "age": 29,
+    "age": 30,
     "height": "6' 1\"",
     "citizenship": "USA",
     "birthPlace": "",
